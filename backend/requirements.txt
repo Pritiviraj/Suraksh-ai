@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 fastapi
 uvicorn
 groq
@@ -5,4 +6,13 @@ supabase
 python-dotenv
 twilio
 scikit-learn
+=======
+fastapi
+uvicorn
+groq
+supabase
+python-dotenv
+twilio
+scikit-learn
+>>>>>>> 1303efccb5da36f78195f341a86cfc1251f653ae
 sentence-transformers
