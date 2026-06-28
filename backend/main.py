@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from classifier import classify_message
 from database import store_report, get_reports
 from clustering import detect_campaigns
+from collections import defaultdict
+from datetime import datetime
 
 load_dotenv()
 
@@ -19,6 +21,17 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+# Rate limiting
+request_counts = defaultdict(list)
+
+def is_rate_limited(ip: str) -> bool:
+    now = datetime.utcnow()
+    request_counts[ip] = [t for t in request_counts[ip] if (now - t).seconds < 60]
+    if len(request_counts[ip]) >= 5:
+        return True
+    request_counts[ip].append(now)
+    return False
+
 class ReportRequest(BaseModel):
     message: str
     city: str = "Unknown"
@@ -30,7 +43,19 @@ async def root():
     return {"status": "SurakshAI backend is live"}
 
 @app.post("/analyze")
-async def analyze(request: ReportRequest):
+async def analyze(request: ReportRequest, req: Request):
+    ip = req.client.host
+    if is_rate_limited(ip):
+        return {
+            "verdict": "ERROR",
+            "confidence": 0,
+            "scam_type": "none",
+            "red_flags": [],
+            "explanation": "Too many requests. Please wait a minute.",
+            "action": "Please try again in a minute.",
+            "campaign": None
+        }
+
     result = classify_message(request.message)
 
     if result["verdict"] in ["SCAM", "SUSPICIOUS"]:
@@ -59,7 +84,6 @@ async def get_all_reports():
 async def whatsapp_webhook(Body: str = Form(), From: str = Form()):
     from twilio.twiml.messaging_response import MessagingResponse
     from whatsapp import handle_whatsapp
-
     reply = handle_whatsapp(Body, From)
     resp = MessagingResponse()
     resp.message(reply)
