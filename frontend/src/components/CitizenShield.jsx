@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = 'https://suraksh-ai-backend.onrender.com';
 
 const VERDICT_CONFIG = {
   SCAM: { emoji: '🚨', color: '#ef4444', bg: '#450a0a', border: '#ef4444', label: 'SCAM DETECTED' },

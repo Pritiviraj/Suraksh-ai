@@ -3,7 +3,7 @@ import axios from 'axios';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
-const API_URL = 'http://127.0.0.1:8000';
+const API_URL = 'https://suraksh-ai-backend.onrender.com';
 
 const SCAM_COLORS = {
   digital_arrest: '#ef4444',
