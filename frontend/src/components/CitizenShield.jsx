@@ -3,6 +3,27 @@ import axios from 'axios';
 
 const API_URL = 'https://suraksh-ai-backend.onrender.com';
 
+const CITY_COORDS = {
+  'mumbai': { lat: 19.0760, lng: 72.8777 },
+  'delhi': { lat: 28.6139, lng: 77.2090 },
+  'bengaluru': { lat: 12.9716, lng: 77.5946 },
+  'bangalore': { lat: 12.9716, lng: 77.5946 },
+  'hyderabad': { lat: 17.3850, lng: 78.4867 },
+  'chennai': { lat: 13.0827, lng: 80.2707 },
+  'kolkata': { lat: 22.5726, lng: 88.3639 },
+  'pune': { lat: 18.5204, lng: 73.8567 },
+  'ahmedabad': { lat: 23.0225, lng: 72.5714 },
+  'jaipur': { lat: 26.9124, lng: 75.7873 },
+  'lucknow': { lat: 26.8467, lng: 80.9462 },
+  'bhopal': { lat: 23.2599, lng: 77.4126 },
+  'chandigarh': { lat: 30.7333, lng: 76.7794 },
+  'surat': { lat: 21.1702, lng: 72.8311 },
+  'patna': { lat: 25.5941, lng: 85.1376 },
+  'nagpur': { lat: 21.1458, lng: 79.0882 },
+  'indore': { lat: 22.7196, lng: 75.8577 },
+  'visakhapatnam': { lat: 17.6868, lng: 83.2185 },
+};
+
 const VERDICT_CONFIG = {
   SCAM: { emoji: '🚨', color: '#ef4444', bg: '#450a0a', border: '#ef4444', label: 'SCAM DETECTED' },
   SUSPICIOUS: { emoji: '⚠️', color: '#f59e0b', bg: '#451a03', border: '#f59e0b', label: 'SUSPICIOUS' },
@@ -21,12 +42,16 @@ function CitizenShield() {
     setLoading(true);
     setResult(null);
     setError(null);
+
+    const cityKey = city.toLowerCase().trim();
+    const coords = CITY_COORDS[cityKey] || { lat: 0.0, lng: 0.0 };
+
     try {
       const response = await axios.post(`${API_URL}/analyze`, {
         message: message,
         city: city || 'Unknown',
-        lat: 0.0,
-        lng: 0.0
+        lat: coords.lat,
+        lng: coords.lng
       });
       setResult(response.data);
     } catch (err) {
@@ -84,7 +109,7 @@ function CitizenShield() {
         <input
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          placeholder="Your city (optional)"
+          placeholder="Your city (e.g. Mumbai, Delhi, Hyderabad)"
           style={{
             width: '100%',
             marginTop: '0.75rem',
@@ -170,9 +195,7 @@ function CitizenShield() {
             <div style={{ background: '#0f172a', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
               <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>RED FLAGS</div>
               {result.red_flags.map((flag, i) => (
-                <div key={i} style={{ color: '#ef4444', marginBottom: '0.25rem' }}>
-                  {flag}
-                </div>
+                <div key={i} style={{ color: '#ef4444', marginBottom: '0.25rem' }}>• {flag}</div>
               ))}
             </div>
           )}
@@ -233,7 +256,6 @@ function CitizenShield() {
           ))}
         </div>
       )}
-
     </div>
   );
 }
