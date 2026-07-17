@@ -7,3 +7,4 @@ twilio
 scikit-learn
 sentence-transformers
 python-multipart
+requests
