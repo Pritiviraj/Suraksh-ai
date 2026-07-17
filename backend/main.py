@@ -1,4 +1,7 @@
 import os
+import threading
+import time
+import requests
 from fastapi import FastAPI, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -31,6 +34,17 @@ def is_rate_limited(ip: str) -> bool:
         return True
     request_counts[ip].append(now)
     return False
+
+# Self-ping keep-alive
+def keep_alive():
+    while True:
+        time.sleep(600)
+        try:
+            requests.get("https://suraksh-ai-backend.onrender.com/health", timeout=10)
+        except:
+            pass
+
+threading.Thread(target=keep_alive, daemon=True).start()
 
 class ReportRequest(BaseModel):
     message: str
